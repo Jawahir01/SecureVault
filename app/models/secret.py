@@ -26,7 +26,7 @@ class Secret(Base):
     
     __table_args__ = (
         Index('idx_secret_owner', 'owner_id'),
-        Index('idx_secret_name_owner', ['name', 'owner_id']),
+        Index('idx_secret_name_owner', 'name', 'owner_id'),
     )
 
 class AccessLog(Base):
@@ -71,5 +71,5 @@ class AuditLog(Base):
     __table_args__ = (
         Index('idx_audit_log_user', 'user_id'),
         Index('idx_audit_log_timestamp', 'timestamp'),
-        Index('idx_audit_log_resource', ['resource', 'resource_id']),
+        Index('idx_audit_log_resource', 'resource', 'resource_id'),
     )
