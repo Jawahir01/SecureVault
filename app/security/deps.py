@@ -1,17 +1,17 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthCredentials
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
-from app.security.auth import auth_service
-from app.security.encryption import encryption_service
+from app.security.auth import AuthService
+from app.security.encryption import EncryptionService
 import logging
 
 logger = logging.getLogger(__name__)
 security = HTTPBearer()
 
 async def get_current_user(
-    credentials: HTTPAuthCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
     """
@@ -23,7 +23,7 @@ async def get_current_user(
     token = credentials.credentials
     
     try:
-        payload = auth_service.verify_token(token)
+        payload = AuthService.verify_token(token)
         user_id: str = payload.get("sub")
         
         if user_id is None:
@@ -60,4 +60,4 @@ async def get_current_active_user(
 
 def get_encryption_service() -> object:
     """Dependency for encryption service."""
-    return encryption_service
+    return EncryptionService()

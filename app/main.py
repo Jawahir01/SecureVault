@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.middleware.gzip import GZIPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -36,6 +36,7 @@ if settings.sentry_dsn:
         environment=settings.environment,
     )
 
+
 # Create FastAPI app
 app = FastAPI(
     title=settings.api_title,
@@ -47,7 +48,7 @@ app = FastAPI(
 )
 
 # Security middleware
-app.add_middleware(GZIPMiddleware, minimum_size=1000)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=["localhost", "127.0.0.1"],  # Restrict to known hosts

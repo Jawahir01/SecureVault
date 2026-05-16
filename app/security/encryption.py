@@ -1,6 +1,6 @@
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import base64
 from app.config import get_settings
 import logging
@@ -23,9 +23,9 @@ class EncryptionService:
     @staticmethod
     def _derive_key(password: str) -> bytes:
         """Derive a Fernet key from a password."""
-        # Use PBKDF2 to derive key from password
+        # Use PBKDF2-HMAC to derive key from password
         salt = b'securevault_salt'  # In production, use proper salt management
-        kdf = PBKDF2(
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,
