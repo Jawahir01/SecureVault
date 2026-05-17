@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="4" failures="3" skipped="0" tests="13" time="3.347" timestamp="2026-05-17T12:31:43.577274" hostname="JewelScipt"><testcase classname="tests.unit.test_auth.TestAuthService" name="test_hash_password" time="0.455" /><testcase classname="tests.unit.test_auth.TestAuthService" name="test_verify_password_wrong" time="0.386" /><testcase classname="tests.unit.test_auth.TestAuthService" name="test_create_access_token" time="0.001" /><testcase classname="tests.unit.test_auth.TestAuthService" name="test_create_refresh_token" time="0.000" /><testcase classname="tests.unit.test_auth.TestAuthService" name="test_verify_invalid_token" time="0.000" /><testcase classname="tests.unit.test_auth.TestAuthService" name="test_verify_expired_token" time="0.001" /><testcase classname="tests.unit.test_auth.TestAuthEndpoints" name="test_register_user" time="0.263"><failure message="assert 400 == 201&#10; +  where 400 = &lt;Response [400 Bad Request]&gt;.status_code&#10; +  and   201 = status.HTTP_201_CREATED">self = &lt;test_auth.TestAuthEndpoints object at 0x000001362A270F10&gt;
+client = &lt;starlette.testclient.TestClient object at 0x0000013629F73A50&gt;
+test_user_data = {'email': 'test@example.com', 'password': 'SecurePassword123!@#', 'username': 'testuser'}
+
+    def test_register_user(self, client, test_user_data):
+        """Test user registration."""
+        response = client.post("/api/v1/auth/register", json=test_user_data)
+    
+&gt;       assert response.status_code == status.HTTP_201_CREATED
+E       assert 400 == 201
+E        +  where 400 = &lt;Response [400 Bad Request]&gt;.status_code
+E        +  and   201 = status.HTTP_201_CREATED
+
+tests\unit\test_auth.py:75: AssertionError</failure></testcase><testcase classname="tests.unit.test_auth.TestAuthEndpoints" name="test_register_duplicate_email" time="0.335"><error message="failed on setup with &quot;sqlalchemy.exc.NoForeignKeysError: Could not determine join condition between parent/child tables on relationship User.refresh_tokens - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.&quot;">self = &lt;sqlalchemy.orm.relationships.JoinCondition object at 0x000001362A3C7B90&gt;
+
+    def _determine_joins(self) -&gt; None:
+        """Determine the 'primaryjoin' and 'secondaryjoin' attributes,
+        if not passed to the constructor already.
+    
+        This is based on analysis of the foreign key relationships
+        between the parent and target mapped selectables.
+    
+        """
+        if self.secondaryjoin is not None and self.secondary is None:
+            raise sa_exc.ArgumentError(
+                "Property %s specified with secondary "
+                "join condition but "
+                "no secondary argument" % self.prop
+            )
+    
+        # find a join between the given mapper's mapped table and
+        # the given table. will try the mapper's local table first
+        # for more specificity, then if not found will try the more
+        # general mapped table, which in the case of inheritance is
+        # a join.
+        try:
+            consider_as_foreign_keys = self.consider_as_foreign_keys or None
+            if self.secondary is not None:
+                if self.secondaryjoin is None:
+                    self.secondaryjoin = join_condition(
+                        self.child_persist_selectable,
+                        self.secondary,
+                        a_subset=self.child_local_selectable,
+                        consider_as_foreign_keys=consider_as_foreign_keys,
+                    )
+                if self.primaryjoin_initial is None:
+                    self.primaryjoin = join_condition(
+                        self.parent_persist_selectable,
+                        self.secondary,
+                        a_subset=self.parent_local_selectable,
+                        consider_as_foreign_keys=consider_as_foreign_keys,
+                    )
+                else:
+                    self.primaryjoin = self.primaryjoin_initial
+            else:
+                if self.primaryjoin_initial is None:
+&gt;                   self.primaryjoin = join_condition(
+                        self.parent_persist_selectable,
+                        self.child_persist_selectable,
+                        a_subset=self.parent_local_selectable,
+                        consider_as_foreign_keys=consider_as_foreign_keys,
+                    )
+
+..\.venv\Lib\site-packages\sqlalchemy\orm\relationships.py:2419: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+..\.venv\Lib\site-packages\sqlalchemy\sql\util.py:123: in join_condition
+    return Join._join_condition(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = &lt;class 'sqlalchemy.sql.selectable.Join'&gt;
+a = Table('users', MetaData(), Column('id', String(length=36), table=&lt;users&gt;, primary_key=True, nullable=False, default=Ca...fault(&lt;function datetime.utcnow at 0x0000013629BC0360&gt;)), Column('last_login', DateTime(), table=&lt;users&gt;), schema=None)
+b = Table('refresh_tokens', MetaData(), Column('id', String(length=36), table=&lt;refresh_tokens&gt;, primary_key=True, nullable...tokens&gt;, nullable=False, default=CallableColumnDefault(&lt;function datetime.utcnow at 0x0000013629BC2DE0&gt;)), schema=None)
+
+    @classmethod
+    def _join_condition(
+        cls,
+        a: FromClause,
+        b: FromClause,
+        *,
+        a_subset: Optional[FromClause] = None,
+        consider_as_foreign_keys: Optional[
+            AbstractSet[ColumnClause[Any]]
+        ] = None,
+    ) -&gt; ColumnElement[bool]:
+        """Create a join condition between two tables or selectables.
+    
+        See sqlalchemy.sql.util.join_condition() for full docs.
+    
+        """
+        constraints = cls._joincond_scan_left_right(
+            a, a_subset, b, consider_as_foreign_keys
+        )
+    
+        if len(constraints) &gt; 1:
+            cls._joincond_trim_constraints(
+                a, b, constraints, consider_as_foreign_keys
+            )
+    
+        if len(constraints) == 0:
+            if isinstance(b, FromGrouping):
+                hint = (
+                    " Perhaps you meant to convert the right side to a "
+                    "subquery using alias()?"
+                )
+            else:
+                hint = ""
+&gt;           raise exc.NoForeignKeysError(
+                "Can't find any foreign key relationships "
+                "between '%s' and '%s'.%s"
+                % (a.description, b.description, hint)
+            )
+E           sqlalchemy.exc.NoForeignKeysError: Can't find any foreign key relationships between 'users' and 'refresh_tokens'.
+
+..\.venv\Lib\site-packages\sqlalchemy\sql\selectable.py:1358: NoForeignKeysError
+
+The above exception was the direct cause of the following exception:
+
+db = &lt;sqlalchemy.orm.session.Session object at 0x000001362A151110&gt;
+test_user_data = {'email': 'test@example.com', 'password': 'SecurePassword123!@#', 'username': 'testuser'}
+
+    @pytest.fixture
+    def test_user(db: Session, test_user_data):
+        """Create a test user in database."""
+&gt;       user = User(
+            email=test_user_data["email"],
+            username=test_user_data["username"],
+            hashed_password=AuthService.hash_password(test_user_data["password"]),
+            is_active=True,
+        )
+
+tests\conftest.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+..\.venv\Lib\site-packages\sqlalchemy\orm\state.py:561: in _initialize_instance
+    manager.dispatch.init(self, args, kwargs)
+..\.venv\Lib\site-packages\sqlalchemy\event\attr.py:487: in __call__
+    fn(*args, **kw)
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4391: in _event_on_init
+    instrumenting_mapper._check_configure()
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:2386: in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4199: in _configure_registries
+    _do_configure_registries(registries, cascade)
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4240: in _do_configure_registries
+    mapper._post_configure_properties()
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:2403: in _post_configure_properties
+    prop.init()
+..\.venv\Lib\site-packages\sqlalchemy\orm\interfaces.py:579: in init
+    self.do_init()
+..\.venv\Lib\site-packages\sqlalchemy\orm\relationships.py:1637: in do_init
+    self._setup_join_conditions()
+..\.venv\Lib\site-packages\sqlalchemy\orm\relationships.py:1882: in _setup_join_conditions
+    self._join_condition = jc = JoinCondition(
+..\.venv\Lib\site-packages\sqlalchemy\orm\relationships.py:2306: in __init__
+    self._determine_joins()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;sqlalchemy.orm.relationships.JoinCondition object at 0x000001362A3C7B90&gt;
+
+    def _determine_joins(self) -&gt; None:
+        """Determine the 'primaryjoin' and 'secondaryjoin' attributes,
+        if not passed to the constructor already.
+    
+        This is based on analysis of the foreign key relationships
+        between the parent and target mapped selectables.
+    
+        """
+        if self.secondaryjoin is not None and self.secondary is None:
+            raise sa_exc.ArgumentError(
+                "Property %s specified with secondary "
+                "join condition but "
+                "no secondary argument" % self.prop
+            )
+    
+        # find a join between the given mapper's mapped table and
+        # the given table. will try the mapper's local table first
+        # for more specificity, then if not found will try the more
+        # general mapped table, which in the case of inheritance is
+        # a join.
+        try:
+            consider_as_foreign_keys = self.consider_as_foreign_keys or None
+            if self.secondary is not None:
+                if self.secondaryjoin is None:
+                    self.secondaryjoin = join_condition(
+                        self.child_persist_selectable,
+                        self.secondary,
+                        a_subset=self.child_local_selectable,
+                        consider_as_foreign_keys=consider_as_foreign_keys,
+                    )
+                if self.primaryjoin_initial is None:
+                    self.primaryjoin = join_condition(
+                        self.parent_persist_selectable,
+                        self.secondary,
+                        a_subset=self.parent_local_selectable,
+                        consider_as_foreign_keys=consider_as_foreign_keys,
+                    )
+                else:
+                    self.primaryjoin = self.primaryjoin_initial
+            else:
+                if self.primaryjoin_initial is None:
+                    self.primaryjoin = join_condition(
+                        self.parent_persist_selectable,
+                        self.child_persist_selectable,
+                        a_subset=self.parent_local_selectable,
+                        consider_as_foreign_keys=consider_as_foreign_keys,
+                    )
+                else:
+                    self.primaryjoin = self.primaryjoin_initial
+        except sa_exc.NoForeignKeysError as nfe:
+            if self.secondary is not None:
+                raise sa_exc.NoForeignKeysError(
+                    "Could not determine join "
+                    "condition between parent/child tables on "
+                    "relationship %s - there are no foreign keys "
+                    "linking these tables via secondary table '%s'.  "
+                    "Ensure that referencing columns are associated "
+                    "with a ForeignKey or ForeignKeyConstraint, or "
+                    "specify 'primaryjoin' and 'secondaryjoin' "
+                    "expressions." % (self.prop, self.secondary)
+                ) from nfe
+            else:
+&gt;               raise sa_exc.NoForeignKeysError(
+                    "Could not determine join "
+                    "condition between parent/child tables on "
+                    "relationship %s - there are no foreign keys "
+                    "linking these tables.  "
+                    "Ensure that referencing columns are associated "
+                    "with a ForeignKey or ForeignKeyConstraint, or "
+                    "specify a 'primaryjoin' expression." % self.prop
+                ) from nfe
+E               sqlalchemy.exc.NoForeignKeysError: Could not determine join condition between parent/child tables on relationship User.refresh_tokens - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
+
+..\.venv\Lib\site-packages\sqlalchemy\orm\relationships.py:2440: NoForeignKeysError</error></testcase><testcase classname="tests.unit.test_auth.TestAuthEndpoints" name="test_register_weak_password" time="0.122"><failure message="assert 400 == 422&#10; +  where 400 = &lt;Response [400 Bad Request]&gt;.status_code&#10; +  and   422 = status.HTTP_422_UNPROCESSABLE_ENTITY">self = &lt;test_auth.TestAuthEndpoints object at 0x000001362A271D10&gt;
+client = &lt;starlette.testclient.TestClient object at 0x000001362AB9DA50&gt;
+
+    def test_register_weak_password(self, client):
+        """Test registration fails with weak password."""
+        weak_user = {
+            "email": "test@example.com",
+            "username": "testuser",
+            "password": "weak"  # Too short
+        }
+        response = client.post("/api/v1/auth/register", json=weak_user)
+&gt;       assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+E       assert 400 == 422
+E        +  where 400 = &lt;Response [400 Bad Request]&gt;.status_code
+E        +  and   422 = status.HTTP_422_UNPROCESSABLE_ENTITY
+
+tests\unit\test_auth.py:94: AssertionError</failure></testcase><testcase classname="tests.unit.test_auth.TestAuthEndpoints" name="test_login_success" time="0.344"><error message="failed on setup with &quot;sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: Could not determine join condition between parent/child tables on relationship User.refresh_tokens - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.&quot;">db = &lt;sqlalchemy.orm.session.Session object at 0x000001362AC178D0&gt;
+test_user_data = {'email': 'test@example.com', 'password': 'SecurePassword123!@#', 'username': 'testuser'}
+
+    @pytest.fixture
+    def test_user(db: Session, test_user_data):
+        """Create a test user in database."""
+&gt;       user = User(
+            email=test_user_data["email"],
+            username=test_user_data["username"],
+            hashed_password=AuthService.hash_password(test_user_data["password"]),
+            is_active=True,
+        )
+
+tests\conftest.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+..\.venv\Lib\site-packages\sqlalchemy\orm\state.py:561: in _initialize_instance
+    manager.dispatch.init(self, args, kwargs)
+..\.venv\Lib\site-packages\sqlalchemy\event\attr.py:487: in __call__
+    fn(*args, **kw)
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4391: in _event_on_init
+    instrumenting_mapper._check_configure()
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:2386: in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4199: in _configure_registries
+    _do_configure_registries(registries, cascade)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+registries = set(), cascade = True
+
+    @util.preload_module("sqlalchemy.orm.decl_api")
+    def _do_configure_registries(
+        registries: Set[_RegistryType], cascade: bool
+    ) -&gt; None:
+        registry = util.preloaded.orm_decl_api.registry
+    
+        orig = set(registries)
+    
+        for reg in registry._recurse_with_dependencies(registries):
+            has_skip = False
+    
+            for mapper in reg._mappers_to_configure():
+                run_configure = None
+    
+                for fn in mapper.dispatch.before_mapper_configured:
+                    run_configure = fn(mapper, mapper.class_)
+                    if run_configure is EXT_SKIP:
+                        has_skip = True
+                        break
+                if run_configure is EXT_SKIP:
+                    continue
+    
+                if getattr(mapper, "_configure_failed", False):
+                    e = sa_exc.InvalidRequestError(
+                        "One or more mappers failed to initialize - "
+                        "can't proceed with initialization of other "
+                        "mappers. Triggering mapper: '%s'. "
+                        "Original exception was: %s"
+                        % (mapper, mapper._configure_failed)
+                    )
+                    e._configure_failed = mapper._configure_failed  # type: ignore
+&gt;                   raise e
+E                   sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: Could not determine join condition between parent/child tables on relationship User.refresh_tokens - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
+
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4236: InvalidRequestError</error></testcase><testcase classname="tests.unit.test_auth.TestAuthEndpoints" name="test_login_invalid_credentials" time="0.313"><error message="failed on setup with &quot;sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: Could not determine join condition between parent/child tables on relationship User.refresh_tokens - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.&quot;">db = &lt;sqlalchemy.orm.session.Session object at 0x0000013629BC8C90&gt;
+test_user_data = {'email': 'test@example.com', 'password': 'SecurePassword123!@#', 'username': 'testuser'}
+
+    @pytest.fixture
+    def test_user(db: Session, test_user_data):
+        """Create a test user in database."""
+&gt;       user = User(
+            email=test_user_data["email"],
+            username=test_user_data["username"],
+            hashed_password=AuthService.hash_password(test_user_data["password"]),
+            is_active=True,
+        )
+
+tests\conftest.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+..\.venv\Lib\site-packages\sqlalchemy\orm\state.py:561: in _initialize_instance
+    manager.dispatch.init(self, args, kwargs)
+..\.venv\Lib\site-packages\sqlalchemy\event\attr.py:487: in __call__
+    fn(*args, **kw)
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4391: in _event_on_init
+    instrumenting_mapper._check_configure()
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:2386: in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4199: in _configure_registries
+    _do_configure_registries(registries, cascade)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+registries = set(), cascade = True
+
+    @util.preload_module("sqlalchemy.orm.decl_api")
+    def _do_configure_registries(
+        registries: Set[_RegistryType], cascade: bool
+    ) -&gt; None:
+        registry = util.preloaded.orm_decl_api.registry
+    
+        orig = set(registries)
+    
+        for reg in registry._recurse_with_dependencies(registries):
+            has_skip = False
+    
+            for mapper in reg._mappers_to_configure():
+                run_configure = None
+    
+                for fn in mapper.dispatch.before_mapper_configured:
+                    run_configure = fn(mapper, mapper.class_)
+                    if run_configure is EXT_SKIP:
+                        has_skip = True
+                        break
+                if run_configure is EXT_SKIP:
+                    continue
+    
+                if getattr(mapper, "_configure_failed", False):
+                    e = sa_exc.InvalidRequestError(
+                        "One or more mappers failed to initialize - "
+                        "can't proceed with initialization of other "
+                        "mappers. Triggering mapper: '%s'. "
+                        "Original exception was: %s"
+                        % (mapper, mapper._configure_failed)
+                    )
+                    e._configure_failed = mapper._configure_failed  # type: ignore
+&gt;                   raise e
+E                   sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: Could not determine join condition between parent/child tables on relationship User.refresh_tokens - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
+
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4236: InvalidRequestError</error></testcase><testcase classname="tests.unit.test_auth.TestAuthEndpoints" name="test_login_nonexistent_user" time="0.126"><failure message="assert 400 == 401&#10; +  where 400 = &lt;Response [400 Bad Request]&gt;.status_code&#10; +  and   401 = status.HTTP_401_UNAUTHORIZED">self = &lt;test_auth.TestAuthEndpoints object at 0x000001362A273410&gt;
+client = &lt;starlette.testclient.TestClient object at 0x000001362A275710&gt;
+
+    def test_login_nonexistent_user(self, client):
+        """Test login with nonexistent user."""
+        credentials = {
+            "username": "nonexistent",
+            "password": "Password123!@#"
+        }
+        response = client.post("/api/v1/auth/login", json=credentials)
+&gt;       assert response.status_code == status.HTTP_401_UNAUTHORIZED
+E       assert 400 == 401
+E        +  where 400 = &lt;Response [400 Bad Request]&gt;.status_code
+E        +  and   401 = status.HTTP_401_UNAUTHORIZED
+
+tests\unit\test_auth.py:126: AssertionError</failure></testcase><testcase classname="tests.unit.test_auth.TestAuthEndpoints" name="test_refresh_token" time="0.320"><error message="failed on setup with &quot;sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: Could not determine join condition between parent/child tables on relationship User.refresh_tokens - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.&quot;">db = &lt;sqlalchemy.orm.session.Session object at 0x000001362A1C0210&gt;
+test_user_data = {'email': 'test@example.com', 'password': 'SecurePassword123!@#', 'username': 'testuser'}
+
+    @pytest.fixture
+    def test_user(db: Session, test_user_data):
+        """Create a test user in database."""
+&gt;       user = User(
+            email=test_user_data["email"],
+            username=test_user_data["username"],
+            hashed_password=AuthService.hash_password(test_user_data["password"]),
+            is_active=True,
+        )
+
+tests\conftest.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+..\.venv\Lib\site-packages\sqlalchemy\orm\state.py:561: in _initialize_instance
+    manager.dispatch.init(self, args, kwargs)
+..\.venv\Lib\site-packages\sqlalchemy\event\attr.py:487: in __call__
+    fn(*args, **kw)
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4391: in _event_on_init
+    instrumenting_mapper._check_configure()
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:2386: in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4199: in _configure_registries
+    _do_configure_registries(registries, cascade)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+registries = set(), cascade = True
+
+    @util.preload_module("sqlalchemy.orm.decl_api")
+    def _do_configure_registries(
+        registries: Set[_RegistryType], cascade: bool
+    ) -&gt; None:
+        registry = util.preloaded.orm_decl_api.registry
+    
+        orig = set(registries)
+    
+        for reg in registry._recurse_with_dependencies(registries):
+            has_skip = False
+    
+            for mapper in reg._mappers_to_configure():
+                run_configure = None
+    
+                for fn in mapper.dispatch.before_mapper_configured:
+                    run_configure = fn(mapper, mapper.class_)
+                    if run_configure is EXT_SKIP:
+                        has_skip = True
+                        break
+                if run_configure is EXT_SKIP:
+                    continue
+    
+                if getattr(mapper, "_configure_failed", False):
+                    e = sa_exc.InvalidRequestError(
+                        "One or more mappers failed to initialize - "
+                        "can't proceed with initialization of other "
+                        "mappers. Triggering mapper: '%s'. "
+                        "Original exception was: %s"
+                        % (mapper, mapper._configure_failed)
+                    )
+                    e._configure_failed = mapper._configure_failed  # type: ignore
+&gt;                   raise e
+E                   sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: Could not determine join condition between parent/child tables on relationship User.refresh_tokens - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
+
+..\.venv\Lib\site-packages\sqlalchemy\orm\mapper.py:4236: InvalidRequestError</error></testcase></testsuite></testsuites>
