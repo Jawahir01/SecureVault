@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from typing import Optional
 from enum import Enum
@@ -36,8 +36,7 @@ class SecretResponse(SecretBase):
     accessed_at: Optional[datetime]
     # Note: value is NOT included in response for security
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SecretValueResponse(SecretResponse):

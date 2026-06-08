@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from datetime import datetime
 from typing import Optional
 
@@ -26,8 +26,7 @@ class UserResponse(UserBase):
     updated_at: datetime
     last_login: Optional[datetime]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserDetailResponse(UserResponse):

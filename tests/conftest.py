@@ -103,10 +103,11 @@ def auth_headers(test_token):
 @pytest.fixture
 def test_secret(db: Session, test_user):
     """Create a test secret."""
+    encryption_service = EncryptionService()
     secret = Secret(
         owner_id=test_user.id,
         name="test_api_key",
-        encrypted_value=EncryptionService.encrypt("super_secret_api_key_12345"),
+        encrypted_value=encryption_service.encrypt("super_secret_api_key_12345"),
         secret_type="api_key",
         description="Test API key",
     )

@@ -14,6 +14,7 @@ import logging
 import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+from contextlib import asynccontextmanager
 
 # Configure logging
 logging.basicConfig(
@@ -37,6 +38,21 @@ if settings.sentry_dsn:
     )
 
 
+# Lifespan context manager for startup and shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Handle startup and shutdown events."""
+    # Startup
+    logger.info("Starting up SecureVault API")
+    init_db()
+    logger.info("Database initialized")
+
+    yield
+
+    # Shutdown
+    logger.info("Shutting down SecureVault API")
+
+
 # Create FastAPI app
 app = FastAPI(
     title=settings.api_title,
@@ -45,6 +61,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    lifespan=lifespan,
 )
 
 # Security middleware
@@ -78,20 +95,6 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 # Include routers
 app.include_router(api_router)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup."""
-    logger.info("Starting up SecureVault API")
-    init_db()
-    logger.info("Database initialized")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Log shutdown."""
-    logger.info("Shutting down SecureVault API")
 
 
 @app.get("/health")
