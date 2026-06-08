@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Optional
 import os
 from functools import lru_cache
 
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     rate_limit_period: int = 60  # seconds
 
     # Sentry (optional error tracking)
-    sentry_dsn: str = None
+    sentry_dsn: Optional[str] = None
 
     # Logging
     log_level: str = "INFO"
