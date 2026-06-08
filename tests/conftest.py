@@ -5,6 +5,11 @@ from sqlalchemy.orm import sessionmaker, Session
 import sys
 import os
 
+# Set test database URL before importing app to avoid config errors
+os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
+os.environ.setdefault("SECRET_KEY", "test-secret-key")
+os.environ.setdefault("ENCRYPTION_KEY", "test-encryption-key-1234567890ab")
+
 # Add the parent directory to Python path so 'app' module can be found
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -13,7 +18,6 @@ from app.database import get_db, Base
 from app.models import User, Secret, RefreshToken
 from app.security.auth import AuthService
 from app.security.encryption import EncryptionService
-import os
 
 # Use in-memory SQLite for testing
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"

@@ -10,21 +10,6 @@ jobs:
   security-tests:
     runs-on: ubuntu-latest
     
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_pass
-          POSTGRES_DB: test_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
     - uses: actions/checkout@v3
     
@@ -67,10 +52,8 @@ jobs:
       continue-on-error: true
     
     - name: Run pytest
-      env:
-        DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/test_db
       run: |
-        pytest --cov=app --cov-report=xml --cov-report=term --junitxml=junit.xml
+        pytest tests/ --cov=app --cov-report=xml --cov-report=term --junitxml=junit.xml
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
