@@ -129,11 +129,14 @@ class TestSecretsAPI:
         from app.models import Secret
 
         # Create multiple secrets
+        from app.security.encryption import EncryptionService
+
+        encryption_service = EncryptionService()
         for i in range(15):
             secret = Secret(
                 owner_id=test_user.id,
                 name=f"secret_{i}",
-                encrypted_value=EncryptionService.encrypt(f"value_{i}"),
+                encrypted_value=encryption_service.encrypt(f"value_{i}"),
                 secret_type="generic",
             )
             db.add(secret)

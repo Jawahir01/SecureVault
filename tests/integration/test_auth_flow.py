@@ -7,7 +7,7 @@ BASE_URL = os.getenv("SECUREVAULT_URL", "http://localhost:8000")
 
 # Skip all tests in this module if SECUREVAULT_URL is not explicitly set (CI environment)
 pytestmark = pytest.mark.skipif(
-    "SECUREVAULT_URL" not in os.environ,
+    os.getenv("SECUREVAULT_URL") is None,
     reason="Integration tests require a running SecureVault server",
 )
 

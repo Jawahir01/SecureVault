@@ -189,7 +189,13 @@ async def get_secret(
     logger.info(f"Secret accessed: {secret_id} by {current_user.username}")
 
     return SecretValueResponse(
-        **secret.__dict__,
+        id=secret.id,
+        name=secret.name,
+        secret_type=secret.secret_type,
+        description=secret.description,
+        created_at=secret.created_at,
+        updated_at=secret.updated_at,
+        accessed_at=secret.accessed_at,
         value=decrypted_value,
     )
 
