@@ -66,9 +66,16 @@ app = FastAPI(
 
 # Security middleware
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# TrustedHostMiddleware - allow testserver for testing
+allowed_hosts = ["localhost", "127.0.0.1", "testserver"]
+if settings.environment == "production":
+    # In production, restrict to specific hosts only
+    allowed_hosts = ["localhost", "127.0.0.1"]
+
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["localhost", "127.0.0.1"],  # Restrict to known hosts
+    allowed_hosts=allowed_hosts,
 )
 
 # CORS middleware
