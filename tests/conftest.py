@@ -29,32 +29,36 @@ engine = create_engine(
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 @pytest.fixture(scope="function")
 def db():
     """Create a fresh database for each test."""
     Base.metadata.create_all(bind=engine)
     db_session = TestingSessionLocal()
-    
+
     yield db_session
-    
+
     db_session.close()
     Base.metadata.drop_all(bind=engine)
+
 
 @pytest.fixture(scope="function")
 def client(db: Session):
     """Create test client with test database."""
+
     def override_get_db():
         try:
             yield db
         finally:
             pass
-    
+
     app.dependency_overrides[get_db] = override_get_db
-    
+
     with TestClient(app) as test_client:
         yield test_client
-    
+
     app.dependency_overrides.clear()
+
 
 @pytest.fixture
 def test_user_data():
@@ -62,8 +66,9 @@ def test_user_data():
     return {
         "email": "test@example.com",
         "username": "testuser",
-        "password": "SecurePassword123!@#"
+        "password": "SecurePassword123!@#",
     }
+
 
 @pytest.fixture
 def test_user(db: Session, test_user_data):
@@ -79,6 +84,7 @@ def test_user(db: Session, test_user_data):
     db.refresh(user)
     return user
 
+
 @pytest.fixture
 def test_token(db: Session, test_user):
     """Create a JWT token for test user."""
@@ -87,10 +93,12 @@ def test_token(db: Session, test_user):
     )
     return access_token
 
+
 @pytest.fixture
 def auth_headers(test_token):
     """Authorization headers with token."""
     return {"Authorization": f"Bearer {test_token}"}
+
 
 @pytest.fixture
 def test_secret(db: Session, test_user):

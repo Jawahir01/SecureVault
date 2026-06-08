@@ -27,6 +27,7 @@ SessionLocal = sessionmaker(
 # Create base class for models
 Base = declarative_base()
 
+
 def get_db() -> Generator[Session, None, None]:
     """Dependency for getting database session."""
     db = SessionLocal()
@@ -34,6 +35,7 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
 
 def init_db():
     """Initialize database tables."""

@@ -18,7 +18,7 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -67,6 +67,7 @@ app.add_middleware(
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 
+
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(
@@ -74,8 +75,10 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
         content={"detail": "Too many requests. Please try again later."},
     )
 
+
 # Include routers
 app.include_router(api_router)
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -84,15 +87,18 @@ async def startup_event():
     init_db()
     logger.info("Database initialized")
 
+
 @app.on_event("shutdown")
 async def shutdown_event():
     """Log shutdown."""
     logger.info("Shutting down SecureVault API")
 
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "version": settings.api_version}
+
 
 @app.get("/")
 async def root():
@@ -105,8 +111,10 @@ async def root():
         "redoc": "/redoc",
     }
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",

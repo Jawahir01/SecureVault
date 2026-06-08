@@ -12,10 +12,7 @@ def random_email():
 
 @pytest.fixture
 def user_credentials():
-    return {
-        "email": random_email(),
-        "password": "StrongPassw0rd!"
-    }
+    return {"email": random_email(), "password": "StrongPassw0rd!"}
 
 
 def test_register_user(user_credentials: dict[str, str]):
@@ -28,14 +25,16 @@ def test_register_user(user_credentials: dict[str, str]):
 
 
 def test_login_user(user_credentials: dict[str, str]):
-    register_response = requests.post(f"{BASE_URL}/auth/register", json=user_credentials)
+    register_response = requests.post(
+        f"{BASE_URL}/auth/register", json=user_credentials
+    )
     assert register_response.status_code == 201
 
     login_response = requests.post(
         f"{BASE_URL}/auth/login",
         data={
             "username": user_credentials["email"],
-            "password": user_credentials["password"]
+            "password": user_credentials["password"],
         },
     )
     assert login_response.status_code == 200
@@ -51,14 +50,16 @@ def test_protected_route_requires_auth():
 
 
 def test_access_protected_route_after_login(user_credentials: dict[str, str]):
-    register_response = requests.post(f"{BASE_URL}/auth/register", json=user_credentials)
+    register_response = requests.post(
+        f"{BASE_URL}/auth/register", json=user_credentials
+    )
     assert register_response.status_code == 201
 
     login_response = requests.post(
         f"{BASE_URL}/auth/login",
         data={
             "username": user_credentials["email"],
-            "password": user_credentials["password"]
+            "password": user_credentials["password"],
         },
     )
     assert login_response.status_code == 200

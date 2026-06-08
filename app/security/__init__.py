@@ -16,7 +16,9 @@ def hash_password(password: str, salt: bytes) -> str:
     """
     Hash a password using PBKDF2-HMAC-SHA256.
     """
-    return hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, DEFAULT_ITERATIONS).hex()
+    return hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), salt, DEFAULT_ITERATIONS
+    ).hex()
 
 
 def verify_password(password: str, salt: bytes, expected_hash: str) -> bool:
@@ -27,7 +29,11 @@ def verify_password(password: str, salt: bytes, expected_hash: str) -> bool:
     return hmac.compare_digest(computed_hash, expected_hash)
 
 
-def is_strong_password(password: str, min_length: int = 12, required_classes: Iterable[str] = ("digit", "lower", "upper", "special")) -> bool:
+def is_strong_password(
+    password: str,
+    min_length: int = 12,
+    required_classes: Iterable[str] = ("digit", "lower", "upper", "special"),
+) -> bool:
     """
     Check whether the provided password meets basic strength criteria.
     """
