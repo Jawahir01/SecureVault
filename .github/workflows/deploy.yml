@@ -19,7 +19,7 @@ jobs:
     
     - name: Build and scan Docker image
       run: |
-        docker build -t securevault:latest .
+        docker build -t securevault:latest -f docker/Dockerfile .
         docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image securevault:latest
     
     - name: Deploy notification
