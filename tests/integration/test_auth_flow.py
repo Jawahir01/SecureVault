@@ -5,6 +5,12 @@ import requests  # type: ignore[import]
 
 BASE_URL = os.getenv("SECUREVAULT_URL", "http://localhost:8000")
 
+# Skip all tests in this module if SECUREVAULT_URL is not explicitly set (CI environment)
+pytestmark = pytest.mark.skipif(
+    "SECUREVAULT_URL" not in os.environ,
+    reason="Integration tests require a running SecureVault server",
+)
+
 
 def random_email():
     return f"test-{uuid.uuid4().hex[:8]}@example.com"
