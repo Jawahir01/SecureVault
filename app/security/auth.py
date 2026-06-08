@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 import jwt
+import uuid
 from passlib.context import CryptContext
 from app.config import get_settings
 import logging
@@ -70,7 +71,7 @@ class AuthService:
                 days=settings.refresh_token_expire_days
             )
 
-        to_encode.update({"exp": expire, "type": "refresh"})
+        to_encode.update({"exp": expire, "type": "refresh", "jti": str(uuid.uuid4())})
 
         try:
             encoded_jwt = jwt.encode(

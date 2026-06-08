@@ -78,7 +78,8 @@ async def create_secret(
     - All access is logged
     """
     # Encrypt the secret value
-    encrypted_value = EncryptionService.encrypt(secret_data.value)
+    encryption_service = EncryptionService()
+    encrypted_value = encryption_service.encrypt(secret_data.value)
 
     # Create secret
     secret = Secret(
@@ -170,7 +171,8 @@ async def get_secret(
 
     # Decrypt value
     try:
-        decrypted_value = EncryptionService.decrypt(secret.encrypted_value)
+        encryption_service = EncryptionService()
+        decrypted_value = encryption_service.decrypt(secret.encrypted_value)
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -230,7 +232,8 @@ async def update_secret(
 
     if update_data.value is not None:
         changes["value"] = "updated"
-        secret.encrypted_value = EncryptionService.encrypt(update_data.value)
+        encryption_service = EncryptionService()
+        secret.encrypted_value = encryption_service.encrypt(update_data.value)
 
     if update_data.description is not None:
         changes["description"] = {
